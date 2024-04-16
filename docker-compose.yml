@@ -1,0 +1,6 @@
+﻿services:
+  musicstreamingservice_backend:
+    image: musicstreamingservice_backend
+    build:
+      context: .
+      dockerfile: Dockerfile
