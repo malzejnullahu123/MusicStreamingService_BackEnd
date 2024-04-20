@@ -1,7 +1,6 @@
 namespace MusicStreamingService_BackEnd.Models;
 
-public class Artist
+public class ArtistRequestModel
 {
-    public int ArtistId { get; set; }
     public string Name { get; set; }
 }
