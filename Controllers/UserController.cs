@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Query.Internal;
-using MusicStreamingService_BackEnd.Dto;
+using MusicStreamingService_BackEnd.Entities;
 using MusicStreamingService_BackEnd.Models;
-using MusicStreamingService_BackEnd.Services.UserService;
+using MusicStreamingService_BackEnd.Services;
 
 namespace MusicStreamingService_BackEnd.Controllers;
 
@@ -11,16 +10,16 @@ namespace MusicStreamingService_BackEnd.Controllers;
 public class UserController : ControllerBase
 {
     private readonly ILogger<UserController> _logger;
-    private readonly UserService _userService;
+    private readonly IUserService _userService;
 
-    public UserController(ILogger<UserController> logger, UserService userService)
+    public UserController(ILogger<UserController> logger, IUserService userService)
     {
         _logger = logger;
         _userService = userService;
     }
 
-    [HttpPost("CreateUser")]
-    public async Task<ActionResult<GetUserDto>> Create([FromBody] SignUpDto request)
+    [HttpPost("register")]
+    public async Task<ActionResult<UserResponseModel>> Create([FromBody] UserRequestModel request)
     {
         if (request == null || string.IsNullOrWhiteSpace(request.FullName) || string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
         {
@@ -30,14 +29,11 @@ public class UserController : ControllerBase
         try
         {
             var user = await _userService.CreateUser(request);
-            var userDto = new GetUserDto
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Username = user.Username,
-                Email = user.Email
-            };
-            return Ok(userDto);
+            return Ok(user);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
         }
         catch (Exception ex)
         {
@@ -46,18 +42,36 @@ public class UserController : ControllerBase
         }
     }
 
+    [HttpPut("{id}")]
+    public async Task<ActionResult<User>> Edit(int id, [FromBody] EditUserRequestModel request)
+    {
+        try
+        {
+            var user = await _userService.Edit(id, request);
+            return Ok(user);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error editing user.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while editing the user.");
+        }
+    }
 
 
     
-    [HttpGet("All")]
-    public async Task<ActionResult<List<GetUserDto>>> GetAll()
+    [HttpGet("all")]
+    public async Task<ActionResult<List<UserResponseModel>>> GetAll()
     {
         var users = await _userService.GetAllUsers();
         return Ok(users);
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<GetUserDto>> DeleteById(int id)
+    public async Task<ActionResult<UserResponseModel>> DeleteById(int id)
     {
         try
         {
@@ -75,24 +89,38 @@ public class UserController : ControllerBase
         }
     }
     
-    [HttpGet("ById")]
-    public async Task<ActionResult<GetUserDto>> GetById(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<UserResponseModel>> GetById(int id)
     {
         if (id == null)
         {
             return BadRequest("Please provide ID");
         }
         
-        var user = await _userService.FindById(id);
-        
-        var userDto = new GetUserDto
+        try
         {
-            Id = user.Id,
-            FullName = user.FullName,
-            Username = user.Username,
-            Email = user.Email
-        };
-        return Ok(userDto);
+            var user = await _userService.FindById(id);
+        
+            var userDto = new UserResponseModel
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Username = user.Username,
+                Email = user.Email
+            };
+            return Ok(userDto);
+
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error finding user.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while finding the user.");
+        }
+        
     }
     
 }
