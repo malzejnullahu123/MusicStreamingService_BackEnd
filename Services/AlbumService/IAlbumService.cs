@@ -5,10 +5,10 @@ namespace MusicStreamingService_BackEnd.Services.AlbumService;
 
 public interface IAlbumService
 {
-    Task<Album> FindById(int id);
-    Task<List<Album>> GetAll();
+    Task<AlbumResponseModel> FindById(int id);
+    Task<List<AlbumResponseModel>> GetAll();
     Task <AlbumResponseModel> CreateAlbum(AlbumRequestModel album);
-    Task<Album> DeleteById(int id);
+    Task<AlbumResponseModel> DeleteById(int id);
 
 
 }

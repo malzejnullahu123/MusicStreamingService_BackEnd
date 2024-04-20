@@ -1,9 +1,12 @@
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MusicStreamingService_BackEnd.Entities;
 
 public class Song
 {
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int SongId { get; set; }
     public string Title { get; set; }
     [ForeignKey("AlbumId")]

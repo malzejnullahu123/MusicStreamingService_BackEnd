@@ -12,13 +12,14 @@ public class AlbumController : ControllerBase
     private readonly ILogger<AlbumController> _logger;
     private readonly IAlbumService _albumService;
     
-    public AlbumController(ILogger<AlbumController> logger, IAlbumService albumService)
+    public AlbumController(ILogger<AlbumController> logger, IAlbumService iAlbumService)
     {
         _logger = logger;
-        _albumService = albumService;
+        _albumService = iAlbumService;
     }
     
     [HttpPost]
+    [Route("register")]
     public async Task<ActionResult<Album>> CreateAlbum([FromBody] AlbumRequestModel album)
     {
         if (album == null)

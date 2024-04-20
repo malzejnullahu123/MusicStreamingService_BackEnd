@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MusicStreamingService_BackEnd.Database;
+using MusicStreamingService_BackEnd.Services;
+using MusicStreamingService_BackEnd.Services.AlbumService;
 using MusicStreamingService_BackEnd.Services.ArtistService;
 using MusicStreamingService_BackEnd.Services.UserService;
 
@@ -10,8 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(options => options
     .UseNpgsql("Host=localhost;Port=5432;Database=music_db;Username=postgres;Password=postgres"));
 builder.Services.AddControllers();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<ArtistService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddScoped<IAlbumService, AlbumService>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

@@ -3,97 +3,96 @@ using MusicStreamingService_BackEnd.Database;
 using MusicStreamingService_BackEnd.Entities;
 using MusicStreamingService_BackEnd.Models;
 
-namespace MusicStreamingService_BackEnd.Services.AlbumService;
-
-public class AlbumService : IAlbumService
+namespace MusicStreamingService_BackEnd.Services.AlbumService
 {
-    private readonly AppDbContext _dbContext;
-
-    public AlbumService(AppDbContext appDbContext)
+    public class AlbumService : IAlbumService
     {
-        _dbContext = appDbContext;
-    }
+        private readonly AppDbContext _dbContext;
 
-    public async Task<Album> FindById(int id)
-    {
-        var album = await _dbContext.Albums.FindAsync(id);
-        if (album == null)
+        public AlbumService(AppDbContext appDbContext)
         {
-            throw new ArgumentException($"Album with ID {id} not found.");
+            _dbContext = appDbContext;
         }
 
-        return album;
-    }
-
-    public async Task<List<Album>> GetAll()
-    {
-        var albums = await _dbContext.Albums.ToListAsync();
-        return albums;
-    }
-
-    public async Task<AlbumResponseModel> CreateAlbum(AlbumRequestModel request)
-    {
-        var artist = await _dbContext.Artists.FindAsync(request.ArtistId);
-        if (artist == null)
+        public async Task<AlbumResponseModel> FindById(int id)
         {
-            throw new InvalidOperationException("Artist id doesn't exist in our database.");
+            var album = await _dbContext.Albums.FindAsync(id);
+            if (album == null)
+            {
+                throw new ArgumentException($"Album with ID {id} not found.");
+            }
+
+            return new AlbumResponseModel
+            {
+                AlbumId = album.AlbumId,
+                Title = album.Title,
+                ReleaseDate = album.ReleaseDate,
+                ArtistId = album.ArtistId,
+                Image = album.Image
+            };
         }
 
-        var album = new Album
+        public async Task<List<AlbumResponseModel>> GetAll()
         {
-            AlbumId = _dbContext.Albums.Count() + 1,
-            Title = request.Title,
-            ArtistId = request.ArtistId,
-            ReleaseDate = DateTime.UtcNow,
-            Image = request.Image
-        };
-
-        _dbContext.Albums.Add(album);
-        await _dbContext.SaveChangesAsync();
-
-        var albumResponse = new AlbumResponseModel
-        {
-            AlbumId = album.AlbumId,
-            Title = album.Title,
-            ReleaseDate = album.ReleaseDate,
-            ArtistId = album.ArtistId,
-            Image = album.Image,
-            Artist = artist
-        };
-
-        return albumResponse;
-    }
-
-
-    public async Task<Album> DeleteById(int id)
-    {
-        var album = await _dbContext.Albums.FindAsync(id);
-        if (album == null)
-        {
-            throw new ArgumentException($"Album with ID {id} not found.");
+            var albums = await _dbContext.Albums.ToListAsync();
+            return albums.Select(album => new AlbumResponseModel
+            {
+                AlbumId = album.AlbumId,
+                Title = album.Title,
+                ReleaseDate = album.ReleaseDate,
+                ArtistId = album.ArtistId,
+                Image = album.Image
+            }).ToList();
         }
 
-        _dbContext.Albums.Remove(album);
-        await _dbContext.SaveChangesAsync();
-
-        return album;
-    }
-
-    public async Task<Album> CreateAlbum(Album album)
-    {
-        if (album == null)
+        public async Task<AlbumResponseModel> CreateAlbum(AlbumRequestModel request)
         {
-            throw new ArgumentNullException(nameof(album));
+            var artist = await _dbContext.Artists.FirstOrDefaultAsync(a => a.ArtistId == request.ArtistId);
+            if (artist == null)
+            {
+                throw new InvalidOperationException("Artist with the specified ID does not exist in the database.");
+            }
+
+            var album = new Album
+            {
+                Title = request.Title,
+                ArtistId = request.ArtistId,
+                ReleaseDate = DateTime.UtcNow,
+                Image = request.Image
+            };
+
+            _dbContext.Albums.Add(album);
+            await _dbContext.SaveChangesAsync();
+
+            return new AlbumResponseModel
+            {
+                AlbumId = album.AlbumId,
+                Title = album.Title,
+                ReleaseDate = album.ReleaseDate,
+                ArtistId = album.ArtistId,
+                Image = album.Image
+            };
         }
 
-        if (album.ReleaseDate == default)
+        public async Task<AlbumResponseModel> DeleteById(int id)
         {
-            album.ReleaseDate = DateTime.UtcNow;
+            var album = await _dbContext.Albums.FindAsync(id);
+            if (album == null)
+            {
+                throw new ArgumentException($"Album with ID {id} not found.");
+            }
+
+            _dbContext.Albums.Remove(album);
+            await _dbContext.SaveChangesAsync();
+
+            return new AlbumResponseModel
+            {
+                AlbumId = album.AlbumId,
+                Title = album.Title,
+                ReleaseDate = album.ReleaseDate,
+                ArtistId = album.ArtistId,
+                Image = album.Image,
+            };
         }
-
-        _dbContext.Albums.Add(album);
-        _dbContext.SaveChanges();
-
-        return album;
     }
 }

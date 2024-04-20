@@ -12,10 +12,10 @@ public class UserController : ControllerBase
     private readonly ILogger<UserController> _logger;
     private readonly IUserService _userService;
 
-    public UserController(ILogger<UserController> logger, IUserService userService)
+    public UserController(ILogger<UserController> logger, IUserService iUserService)
     {
         _logger = logger;
-        _userService = userService;
+        _userService = iUserService;
     }
 
     [HttpPost("register")]
@@ -47,7 +47,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            var user = await _userService.Edit(id, request);
+            var user = await _userService.EditUser(id, request);
             return Ok(user);
         }
         catch (InvalidOperationException ex)
@@ -103,7 +103,7 @@ public class UserController : ControllerBase
         
             var userDto = new UserResponseModel
             {
-                Id = user.Id,
+                UserId = user.UserId,
                 FullName = user.FullName,
                 Username = user.Username,
                 Email = user.Email
@@ -118,7 +118,7 @@ public class UserController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error finding user.");
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while finding the user.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while looking for the user.");
         }
         
     }

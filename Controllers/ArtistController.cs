@@ -1,23 +1,23 @@
 using Microsoft.AspNetCore.Mvc;
-using MusicStreamingService_BackEnd.Dto;
 using MusicStreamingService_BackEnd.Models;
+using MusicStreamingService_BackEnd.Entities;
 using MusicStreamingService_BackEnd.Services.ArtistService;
 
 namespace MusicStreamingService_BackEnd.Controllers;
 
 public class ArtistController : ControllerBase
 {
-    private readonly ILogger<UserController> _logger;
-    private readonly ArtistService _artistService;
+    private readonly ILogger<ArtistController> _logger;
+    private readonly IArtistService _artistService;
 
-    public ArtistController(ILogger<UserController> logger, ArtistService artistService)
+    public ArtistController(ILogger<ArtistController> logger, IArtistService iArtistService)
     {
         _logger = logger;
-        _artistService = artistService;
+        _artistService = iArtistService;
     }
     
-    [HttpPost("CreateArtist")]
-    public async Task<ActionResult<Artist>> Create([FromBody] ArtistDto request)
+    [HttpPost("register")]
+    public async Task<ActionResult<ArtistResponseModel>> Create([FromBody] ArtistRequestModel request)
     {
         if (request == null || string.IsNullOrWhiteSpace(request.Name))
         {
@@ -29,22 +29,26 @@ public class ArtistController : ControllerBase
             var artist = await _artistService.CreateArtist(request);
             return Ok(artist);
         }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(ex.Message);
+        }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating user.");
-            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating the user.");
+            _logger.LogError(ex, "Error creating artist.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while creating the artist.");
         }
     }
     
-    [HttpGet("All")]
-    public async Task<ActionResult<List<Artist>>> GetAll()
+    [HttpGet("all")]
+    public async Task<ActionResult<List<ArtistResponseModel>>> GetAll()
     {
         var artists = await _artistService.GetAllArtists();
         return Ok(artists);
     }
     
     [HttpDelete("{id}")]
-    public async Task<ActionResult<Artist>> DeleteById(int id)
+    public async Task<ActionResult<ArtistResponseModel>> DeleteById(int id)
     {
         try
         {
@@ -62,17 +66,30 @@ public class ArtistController : ControllerBase
         }
     }
     
-    [HttpGet("ById")]
-    public async Task<ActionResult<Artist>> GetById(int id)
+    [HttpGet("{id}")]
+    public async Task<ActionResult<ArtistResponseModel>> GetById(int id)
     {
         if (id == null)
         {
             return BadRequest("Please provide ID");
         }
+
+        try
+        {
+            var artist = await _artistService.FindById(id);
         
-        var artist = await _artistService.FindById(id);
+            return Ok(artist);
+        }
+        catch (ArgumentException ex)
+        {
+            return NotFound(ex.Message);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error lokking for the artist.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while looking for the artist.");
+        }
         
-        return Ok(artist);
     }
     
 }

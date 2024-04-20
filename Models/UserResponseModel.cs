@@ -4,7 +4,7 @@ namespace MusicStreamingService_BackEnd.Models;
 
 public class UserResponseModel
 {
-    public int Id { get; set; }
+    public int UserId { get; set; }
     public string FullName { get; set; }
     public string Username { get; set; }
     [EmailAddress]
