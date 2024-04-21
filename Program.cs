@@ -5,6 +5,8 @@ using MusicStreamingService_BackEnd.Services.AlbumService;
 using MusicStreamingService_BackEnd.Services.ArtistService;
 using MusicStreamingService_BackEnd.Services.GenreService;
 using MusicStreamingService_BackEnd.Services.UserService;
+using MusicStreamingService_BackEnd.Services.PlayHistoryService;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +19,8 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<IAlbumService, AlbumService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
+builder.Services.AddScoped<IPlayHistoryService, PlayHistoryService>();
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
