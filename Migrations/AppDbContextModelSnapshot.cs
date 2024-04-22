@@ -162,11 +162,15 @@ namespace MusicStreamingService_BackEnd.Migrations
                     b.Property<int>("ArtistId")
                         .HasColumnType("integer");
 
+                    b.Property<string>("EmbedIMGLink")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("EmbedLink")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("GenreId")
+                    b.Property<int>("GenreId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Title")
@@ -285,13 +289,17 @@ namespace MusicStreamingService_BackEnd.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MusicStreamingService_BackEnd.Entities.Genre", null)
+                    b.HasOne("MusicStreamingService_BackEnd.Entities.Genre", "Genre")
                         .WithMany("Songs")
-                        .HasForeignKey("GenreId");
+                        .HasForeignKey("GenreId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Album");
 
                     b.Navigation("Artist");
+
+                    b.Navigation("Genre");
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Album", b =>
