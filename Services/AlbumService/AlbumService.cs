@@ -28,21 +28,41 @@ namespace MusicStreamingService_BackEnd.Services.AlbumService
                 Title = album.Title,
                 ReleaseDate = album.ReleaseDate,
                 ArtistId = album.ArtistId,
+                ArtistName = artist.Name, // Include the artist's name
                 Image = album.Image
             };
         }
 
-        public async Task<List<AlbumResponseModel>> GetAll()
+        /// <summary>
+        /// //////////////////////aspak metode e mire, gjithsesi punon...
+        /// </summary>
+        /// <returns></returns>
+        public async Task<List<AlbumResponseModel>> GetAll(int pageNumber, int pageSize)
         {
-            var albums = await _dbContext.Albums.ToListAsync();
-            return albums.Select(album => new AlbumResponseModel
+            var albums = await _dbContext.Albums
+                .OrderByDescending(a => a.AlbumId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var albumResponseModels = new List<AlbumResponseModel>();
+            foreach (var album in albums)
             {
-                AlbumId = album.AlbumId,
-                Title = album.Title,
-                ReleaseDate = album.ReleaseDate,
-                ArtistId = album.ArtistId,
-                Image = album.Image
-            }).ToList();
+                var artist = await _dbContext.Artists.FindAsync(album.ArtistId);
+                if (artist != null)
+                {
+                    albumResponseModels.Add(new AlbumResponseModel
+                    {
+                        AlbumId = album.AlbumId,
+                        Title = album.Title,
+                        ReleaseDate = album.ReleaseDate,
+                        ArtistId = album.ArtistId,
+                        ArtistName = artist.Name,
+                        Image = album.Image
+                    });
+                }
+            }
+            return albumResponseModels;
         }
 
         public async Task<AlbumResponseModel> CreateAlbum(AlbumRequestModel request)
@@ -70,6 +90,7 @@ namespace MusicStreamingService_BackEnd.Services.AlbumService
                 Title = album.Title,
                 ReleaseDate = album.ReleaseDate,
                 ArtistId = album.ArtistId,
+                ArtistName = artist.Name, // Include the artist's name
                 Image = album.Image
             };
         }
@@ -92,6 +113,37 @@ namespace MusicStreamingService_BackEnd.Services.AlbumService
                 ReleaseDate = album.ReleaseDate,
                 ArtistId = album.ArtistId,
                 Image = album.Image,
+            };
+        }
+         public async Task<AlbumResponseModel> AddSongToAlbum(int albumId, int songId)
+        {
+            var album = await _dbContext.Albums.Include(a => a.Songs).FirstOrDefaultAsync(a => a.AlbumId == albumId);
+            if (album == null)
+            {
+                throw new ArgumentException($"Album with ID {albumId} not found.");
+            }
+
+            var song = await _dbContext.Songs.FirstOrDefaultAsync(s => s.SongId == songId);
+            if (song == null)
+            {
+                throw new ArgumentException($"Song with ID {songId} not found.");
+            }
+
+            if (album.Songs.Any(s => s.SongId == songId))
+            {
+                throw new InvalidOperationException($"Song with ID {songId} already exists in album with ID {albumId}.");
+            }
+
+            album.Songs.Add(song);
+            await _dbContext.SaveChangesAsync();
+
+            return new AlbumResponseModel
+            {
+                AlbumId = album.AlbumId,
+                Title = album.Title,
+                ReleaseDate = album.ReleaseDate,
+                ArtistId = album.ArtistId,
+                Image = album.Image
             };
         }
     }
