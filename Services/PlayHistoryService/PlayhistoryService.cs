@@ -71,5 +71,5 @@ namespace MusicStreamingService_BackEnd.Services.PlayHistoryService
             _dbContext.PlayHistories.Add(playHistory);
             await _dbContext.SaveChangesAsync();
         }
-    }
+    } //
 }
