@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MusicStreamingService_BackEnd.Database;
@@ -15,13 +16,35 @@ public class ArtistService : IArtistService
         _dbContext = appDbContext;
     }
     
-    public async Task<ArtistResponseModel> CreateArtist([FromBody] ArtistRequestModel request)
+    public async Task<ArtistResponseModel> CreateArtist(string token, ArtistRequestModel request)
     {
+        var principal = TokenService.VerifyToken(token);
+    
+        var idClaim = principal.Claims
+            .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+        int.TryParse(idClaim.Value, out var id);
+    
+        // Check if the user already exists as an artist
+        if (_dbContext.Artists.Any(a => a.UserId == id))
+        {
+            throw new ArgumentException("User is already an artist.");
+        }
+        
         var artist = new Artist
         {
-            // ArtistId = _dbContext.Artists.Count() + 1,  //Guid.NewGuid().ToString(),
-            Name = request.Name
+            ArtistId = id,
+            UserId = id,
+            Name = request.Name,
+            EmbedImgLink = request.EmbedImgLink
         };
+        
+        var user = _dbContext.Users.FirstOrDefault(u => u.UserId == id);
+        if (user == null)
+        {
+            throw new ArgumentException("User not found.");
+        }
+        
+        user.EmbedImgLink = request.EmbedImgLink;
 
         _dbContext.Artists.Add(artist);
         await _dbContext.SaveChangesAsync();
@@ -29,18 +52,36 @@ public class ArtistService : IArtistService
         return new ArtistResponseModel
         {
             ArtistId = artist.ArtistId,
-            Name = request.Name
+            Name = request.Name,
+            EmbedImgLink = request.EmbedImgLink
         };
     }
 
-    public async Task<List<ArtistResponseModel>> GetAllArtists()
+
+    // public async Task<List<ArtistResponseModel>> GetAllArtists()
+    // {
+    //     var artists = await _dbContext.Artists.ToListAsync();
+    //     return artists.Select(artist => new ArtistResponseModel
+    //     {
+    //         ArtistId = artist.ArtistId,
+    //         Name = artist.Name,
+    //         EmbedImgLink = artist.EmbedImgLink,
+    //     }).ToList();
+    // }
+    
+    public async Task<List<ArtistResponseModel>> GetAllArtists(int pageNumber, int pageSize)
     {
-        var artists = await _dbContext.Artists.ToListAsync();
+        var artists = await _dbContext.Artists
+            .OrderByDescending(artist => artist.ArtistId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
         return artists.Select(artist => new ArtistResponseModel
         {
             ArtistId = artist.ArtistId,
             Name = artist.Name,
-            // Map other properties as needed
+            EmbedImgLink = artist.EmbedImgLink,
         }).ToList();
     }
 
@@ -55,7 +96,8 @@ public class ArtistService : IArtistService
         return new ArtistResponseModel
         {
             ArtistId = id,
-            Name = artist.Name
+            Name = artist.Name,
+            EmbedImgLink = artist.EmbedImgLink
         };
     }
 
@@ -73,7 +115,8 @@ public class ArtistService : IArtistService
         return new ArtistResponseModel
         {
             ArtistId = artist.ArtistId,
-            Name = artist.Name
+            Name = artist.Name,
+            EmbedImgLink = artist.EmbedImgLink
         };
     }
 }
