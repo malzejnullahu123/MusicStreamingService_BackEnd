@@ -5,7 +5,7 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService;
 public interface IPlaylistService
 {
     Task<PlaylistResponseModel> FindById(int id);
-    Task<List<PlaylistResponseModel>> GetAll();
+    Task<List<PlaylistResponseModel>> GetAllVisible(int pageNumber, int pageSize);
     Task<PlaylistResponseModel> CreatePlaylist(PlaylistRequestModel request);
     Task<PlaylistResponseModel> DeleteById(int id);
     

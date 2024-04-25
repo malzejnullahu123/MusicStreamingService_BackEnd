@@ -26,6 +26,8 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
             {
                 Name = request.Name,
                 UserId = request.UserId
+                 Image = request.Image,
+                IsVisible = request.IsVisible
             };
 
             _dbContext.Playlists.Add(playlist);
@@ -36,6 +38,8 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
                 PlaylistId = playlist.PlaylistId,
                 Name = playlist.Name,
                 UserId = playlist.UserId
+                Image = playlist.Image,
+                IsVisible = request.IsVisible
             };
         }
 
@@ -52,18 +56,33 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
                 PlaylistId = playlist.PlaylistId,
                 Name = playlist.Name,
                 UserId = playlist.UserId
+                Image = playlist.Image,
+                IsVisible = request.IsVisible
             };
         }
 
-        public async Task<List<PlaylistResponseModel>> GetAll()
+        public async Task<List<PlaylistResponseModel>> GetAllVisible(int pageNumber, int pageSize)
         {
-            var playlists = await _dbContext.Playlists.ToListAsync();
-            return playlists.Select(playlist => new PlaylistResponseModel
+            var playlists = await _dbContext.Playlists
+                .OrderByDescending(p => p.PlaylistId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var playlistResponseModels = new List<PlaylistResponseModel>();
+            foreach (var playlist in playlists)
             {
-                PlaylistId = playlist.PlaylistId,
-                Name = playlist.Name,
-                UserId = playlist.UserId
-            }).ToList();
+                playlistResponseModels.Add(new PlaylistResponseModel
+                {
+                    PlaylistId = playlist.PlaylistId,
+                    Name = playlist.Name,
+                    UserId = playlist.UserId,
+                    Image = playlist.Image,
+                    IsVisible = playlist.IsVisible
+                });
+            }
+
+            return playlistResponseModels;
         }
 
         public async Task<PlaylistResponseModel> DeleteById(int id)
@@ -82,6 +101,8 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
                 PlaylistId = playlist.PlaylistId,
                 Name = playlist.Name,
                 UserId = playlist.UserId
+                Image = playlist.Image,
+                IsVisible = request.IsVisible
             };
         }
         
