@@ -18,5 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<Playlist> Playlists { get; set; }
     public DbSet<PlaylistSong> PlaylistSongs { get; set; }
     public DbSet<PlayHistory> PlayHistories { get; set; }
+    public DbSet<Follow> Follows { get; set; }
+
     
 }

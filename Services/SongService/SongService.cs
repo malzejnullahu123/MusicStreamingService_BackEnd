@@ -16,7 +16,11 @@ public class SongService : ISongService
 
     public async Task<SongResponseModel> FindById(int id)
     {
-        var song = await _dbContext.Songs.FindAsync(id);
+        var song = await _dbContext.Songs
+            .Include(s => s.Artist)
+            .Include(s => s.Genre)
+            .FirstOrDefaultAsync(s => s.SongId == id);
+
         if (song == null)
         {
             throw new ArgumentException($"Song with ID {id} not found.");
@@ -27,25 +31,81 @@ public class SongService : ISongService
             SongId = song.SongId,
             Title = song.Title,
             ArtistId = song.ArtistId,
+            ArtistName = song.Artist.Name,
             GenreId = song.GenreId,
+            GenreName = song.Genre.Name,
             EmbedLink = song.EmbedLink,
             EmbedIMGLink = song.EmbedIMGLink
         };
     }
 
-    public async Task<List<SongResponseModel>> GetAll()
+    public async Task<List<SongResponseModel>> GetNew(int pageSize)
     {
-        var songs = await _dbContext.Songs.ToListAsync();
+        var songs = await _dbContext.Songs
+            .Include(song => song.Artist)
+            .Include(song => song.Genre)
+            .OrderByDescending(song => song.SongId)
+            .Take(pageSize)
+            .ToListAsync();
+
         return songs.Select(song => new SongResponseModel
         {
             SongId = song.SongId,
             Title = song.Title,
             ArtistId = song.ArtistId,
+            ArtistName = song.Artist.Name,
             GenreId = song.GenreId,
+            GenreName = song.Genre.Name,
             EmbedLink = song.EmbedLink,
             EmbedIMGLink = song.EmbedIMGLink
         }).ToList();
     }
+
+
+    // public async Task<List<SongResponseModel>> GetAll()
+    // {
+    //     var songs = await _dbContext.Songs
+    //         .Include(song => song.Artist)
+    //         .Include(song => song.Genre)
+    //         .OrderByDescending(song => song.SongId)
+    //         .ToListAsync();
+    //
+    //     return songs.Select(song => new SongResponseModel
+    //     {
+    //         SongId = song.SongId,
+    //         Title = song.Title,
+    //         ArtistId = song.ArtistId,
+    //         ArtistName = song.Artist.Name,
+    //         GenreId = song.GenreId,
+    //         GenreName = song.Genre.Name,
+    //         EmbedLink = song.EmbedLink,
+    //         EmbedIMGLink = song.EmbedIMGLink
+    //     }).ToList();
+    // }
+    
+    public async Task<List<SongResponseModel>> GetAll(int pageNumber, int pageSize)
+    {
+        var songs = await _dbContext.Songs
+            .Include(song => song.Artist)
+            .Include(song => song.Genre)
+            .OrderBy(song => song.SongId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return songs.Select(song => new SongResponseModel
+        {
+            SongId = song.SongId,
+            Title = song.Title,
+            ArtistId = song.ArtistId,
+            ArtistName = song.Artist.Name,
+            GenreId = song.GenreId,
+            GenreName = song.Genre.Name,
+            EmbedLink = song.EmbedLink,
+            EmbedIMGLink = song.EmbedIMGLink
+        }).ToList();
+    }
+
 
     public async Task<SongResponseModel> CreateSong(SongRequestModel request)
     {
@@ -128,5 +188,55 @@ public class SongService : ISongService
             EmbedIMGLink = song.EmbedIMGLink
         }).ToList();
     }
+    
+    public async Task<List<SongResponseModel>> GetSongsByArtist(int artistId)
+    {
+        var songs = await _dbContext.Songs
+            .Where(song => song.ArtistId == artistId)
+            .ToListAsync();
+
+        if (songs.Count == 0)
+        {
+            throw new ArgumentException($"No songs found for artist with ID {artistId}");
+        }
+
+        return songs.Select(song => new SongResponseModel
+        {
+            SongId = song.SongId,
+            Title = song.Title,
+            ArtistId = song.ArtistId,
+            GenreId = song.GenreId,
+            EmbedLink = song.EmbedLink,
+            EmbedIMGLink = song.EmbedIMGLink
+        }).ToList();
+    }
+    
+    public async Task<List<SongResponseModel>> GetSongsByAlbum(int albumId)
+    {
+        var songs = await _dbContext.Songs
+            .Where(s => s.AlbumId == albumId)
+            .Include(song => song.Artist)
+            .Include(song => song.Genre)
+            .ToListAsync();
+
+        if (songs.Count == 0)
+        {
+            throw new ArgumentException($"No songs found for album with ID {albumId}");
+        }
+
+        return songs.Select(song => new SongResponseModel
+        {
+            SongId = song.SongId,
+            Title = song.Title,
+            ArtistId = song.ArtistId,
+            ArtistName = song.Artist.Name,
+            GenreId = song.GenreId,
+            GenreName = song.Genre.Name,
+            EmbedLink = song.EmbedLink,
+            EmbedIMGLink = song.EmbedIMGLink
+        }).ToList();
+    }
+
+
 
 }

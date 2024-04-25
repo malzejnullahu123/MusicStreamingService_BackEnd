@@ -3,9 +3,12 @@ using MusicStreamingService_BackEnd.Database;
 using MusicStreamingService_BackEnd.Services;
 using MusicStreamingService_BackEnd.Services.AlbumService;
 using MusicStreamingService_BackEnd.Services.ArtistService;
+using MusicStreamingService_BackEnd.Services.AuthService;
+using MusicStreamingService_BackEnd.Services.FollowService;
 using MusicStreamingService_BackEnd.Services.GenreService;
 using MusicStreamingService_BackEnd.Services.PlayHistoryService;
 using MusicStreamingService_BackEnd.Services.PlaylistService;
+using MusicStreamingService_BackEnd.Services.SearchService;
 using MusicStreamingService_BackEnd.Services.SongService;
 using MusicStreamingService_BackEnd.Services.UserService;
 
@@ -23,6 +26,11 @@ builder.Services.AddScoped<ISongService, SongService>();
 builder.Services.AddScoped<IGenreService, GenreService>();
 builder.Services.AddScoped<IPlaylistService, PlaylistService>();
 builder.Services.AddScoped<IPlayHistoryService, PlayHistoryService>();
+builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IFollowService, FollowService>();
+builder.Services.AddScoped<ExtractFromToken>();
+
 
 builder.Services.AddCors(options =>
 {

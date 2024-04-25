@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using MusicStreamingService_BackEnd.Database;
 using MusicStreamingService_BackEnd.Entities;
@@ -14,11 +15,17 @@ namespace MusicStreamingService_BackEnd.Services.PlayHistoryService
             _dbContext = dbContext;
         }
 
-        public async Task<List<PlayHistoryResponseModel>> GetPlayHistoryByUserId(int userId)
+        public async Task<List<PlayHistoryResponseModel>> GetPlayHistoryByUserId(string token)
         {
+            var principal = TokenService.VerifyToken(token);
+    
+            var idClaim = principal.Claims
+                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
+            int.TryParse(idClaim.Value, out var id);
+            
             var playHistoryEntries = await _dbContext.PlayHistories
                 .Include(ph => ph.Song)
-                .Where(ph => ph.UserId == userId)
+                .Where(ph => ph.UserId == id)
                 .OrderByDescending(ph => ph.DatePlayed)
                 .ToListAsync();
 
@@ -34,7 +41,8 @@ namespace MusicStreamingService_BackEnd.Services.PlayHistoryService
                     Title = ph.Song.Title,
                     ArtistId = ph.Song.ArtistId,
                     GenreId = ph.Song.GenreId,
-                    EmbedLink = ph.Song.EmbedLink
+                    EmbedLink = ph.Song.EmbedLink,
+                    EmbedIMGLink = ph.Song.EmbedIMGLink,
                 }
             }).ToList();
         }

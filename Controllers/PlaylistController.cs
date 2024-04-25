@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using MusicStreamingService_BackEnd.Models;
 using MusicStreamingService_BackEnd.Services.PlaylistService;
@@ -18,12 +15,12 @@ namespace MusicStreamingService_BackEnd.Controllers
             _playlistService = playlistService;
         }
 
-        [HttpGet("all")]
-        public async Task<ActionResult<List<PlaylistResponseModel>>> GetAllPlaylists()
+        [HttpGet("all/{pageNumber}/{pageSize}")]
+        public async Task<ActionResult<List<PlaylistResponseModel>>> GetAllVisiblePlaylists(int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                var playlists = await _playlistService.GetAll();
+                var playlists = await _playlistService.GetAllVisible(pageNumber, pageSize);
                 return Ok(playlists);
             }
             catch (Exception ex)

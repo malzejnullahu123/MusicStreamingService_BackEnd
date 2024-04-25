@@ -10,6 +10,7 @@ namespace MusicStreamingService_BackEnd.Models
         public string Title { get; set; }
         public DateTime ReleaseDate { get; set; }
         public int ArtistId { get; set; }
+        public string ArtistName { get; set; }
         public string Image { get; set; }
 
         [JsonIgnore]

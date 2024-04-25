@@ -7,8 +7,8 @@ using MusicStreamingService_BackEnd.Services.PlayHistoryService;
 
 namespace MusicStreamingService_BackEnd.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class PlayHistoryController : ControllerBase
     {
         private readonly IPlayHistoryService _playHistoryService;
@@ -18,10 +18,10 @@ namespace MusicStreamingService_BackEnd.Controllers
             _playHistoryService = playHistoryService;
         }
 
-        [HttpGet("{userId}")]
-        public async Task<ActionResult<List<PlayHistoryResponseModel>>> GetPlayHistory(int userId)
+        [HttpGet("{token}")]
+        public async Task<ActionResult<List<PlayHistoryResponseModel>>> GetPlayHistory(string token)
         {
-            var playHistory = await _playHistoryService.GetPlayHistoryByUserId(userId);
+            var playHistory = await _playHistoryService.GetPlayHistoryByUserId(token);
             if (playHistory.Count == 0)
             {
                 return NotFound("No play history found for the user.");

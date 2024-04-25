@@ -59,13 +59,45 @@ namespace MusicStreamingService_BackEnd.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ArtistId"));
 
+                    b.Property<string>("EmbedImgLink")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
                     b.HasKey("ArtistId");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Artists");
+                });
+
+            modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Follow", b =>
+                {
+                    b.Property<int>("FollowId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("FollowId"));
+
+                    b.Property<int>("FollowingUserID")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("integer");
+
+                    b.HasKey("FollowId");
+
+                    b.HasIndex("FollowingUserID");
+
+                    b.HasIndex("UserID");
+
+                    b.ToTable("Follows");
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Genre", b =>
@@ -118,6 +150,13 @@ namespace MusicStreamingService_BackEnd.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("PlaylistId"));
+
+                    b.Property<string>("Image")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsVisible")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -200,11 +239,18 @@ namespace MusicStreamingService_BackEnd.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("EmbedImgLink")
+                        .HasColumnType("text");
+
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Role")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -226,6 +272,36 @@ namespace MusicStreamingService_BackEnd.Migrations
                         .IsRequired();
 
                     b.Navigation("Artist");
+                });
+
+            modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Artist", b =>
+                {
+                    b.HasOne("MusicStreamingService_BackEnd.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Follow", b =>
+                {
+                    b.HasOne("MusicStreamingService_BackEnd.Entities.User", "FollowingUser")
+                        .WithMany()
+                        .HasForeignKey("FollowingUserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("MusicStreamingService_BackEnd.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FollowingUser");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.PlayHistory", b =>

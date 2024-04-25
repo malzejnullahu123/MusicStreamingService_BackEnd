@@ -5,6 +5,8 @@ using MusicStreamingService_BackEnd.Services.ArtistService;
 
 namespace MusicStreamingService_BackEnd.Controllers;
 
+[ApiController]
+[Route("api/[controller]")]
 public class ArtistController : ControllerBase
 {
     private readonly ILogger<ArtistController> _logger;
@@ -17,7 +19,7 @@ public class ArtistController : ControllerBase
     }
     
     [HttpPost("register")]
-    public async Task<ActionResult<ArtistResponseModel>> Create([FromBody] ArtistRequestModel request)
+    public async Task<ActionResult<ArtistResponseModel>> Create([FromQuery] string token, [FromBody] ArtistRequestModel request)
     {
         if (request == null || string.IsNullOrWhiteSpace(request.Name))
         {
@@ -26,10 +28,10 @@ public class ArtistController : ControllerBase
 
         try
         {
-            var artist = await _artistService.CreateArtist(request);
+            var artist = await _artistService.CreateArtist(token, request);
             return Ok(artist);
         }
-        catch (InvalidOperationException ex)
+        catch (ArgumentException ex)
         {
             return Conflict(ex.Message);
         }
@@ -40,11 +42,26 @@ public class ArtistController : ControllerBase
         }
     }
     
-    [HttpGet("all")]
-    public async Task<ActionResult<List<ArtistResponseModel>>> GetAll()
+    // [HttpGet("all")]
+    // public async Task<ActionResult<List<ArtistResponseModel>>> GetAll()
+    // {
+    //     var artists = await _artistService.GetAllArtists();
+    //     return Ok(artists);
+    // }
+    
+    [HttpGet("all/{pageNumber}/{pageSize}")]
+    public async Task<ActionResult<List<ArtistResponseModel>>> GetAll(int pageNumber = 1, int pageSize = 10)
     {
-        var artists = await _artistService.GetAllArtists();
-        return Ok(artists);
+        try
+        {
+            var artists = await _artistService.GetAllArtists(pageNumber, pageSize);
+            return Ok(artists);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching all artists.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while fetching artists.");
+        }
     }
     
     [HttpDelete("{id}")]
