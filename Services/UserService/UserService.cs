@@ -47,9 +47,14 @@ public class UserService : IUserService
             return response;
         }
 
-        public async Task<List<UserResponseModel>> GetAllUsers()
+        public async Task<List<UserResponseModel>> GetAllUsers(int pageNumber, int pageSize)
         {
-            var users = await _dbContext.Users.ToListAsync();
+            var users = await _dbContext.Users
+                .OrderByDescending(user => user.UserId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             return users.Select(user => new UserResponseModel
             {
                 UserId = user.UserId,
@@ -58,6 +63,7 @@ public class UserService : IUserService
                 Email = user.Email
             }).ToList();
         }
+
 
         public async Task<User> EditUser(int id, EditUserRequestModel request)
         {

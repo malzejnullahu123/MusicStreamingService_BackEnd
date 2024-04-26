@@ -6,7 +6,7 @@ namespace MusicStreamingService_BackEnd.Services;
 public interface IUserService
 {
     Task<UserResponseModel> CreateUser(UserRequestModel createUser);
-    Task<List<UserResponseModel>> GetAllUsers();
+    Task<List<UserResponseModel>> GetAllUsers(int pageNumber, int pageSiz);
     Task<User> EditUser(int id, EditUserRequestModel editUser);
 
     Task<UserResponseModel> FindById(int id);

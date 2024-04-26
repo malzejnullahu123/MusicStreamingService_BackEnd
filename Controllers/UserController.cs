@@ -134,13 +134,14 @@ public class UserController : ControllerBase
 
     
     [HttpGet("all")]
-    public async Task<ActionResult<List<UserResponseModel>>> GetAll()
+    public async Task<ActionResult<List<UserResponseModel>>> GetAll([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
     {
-        var users = await _userService.GetAllUsers();
+        var users = await _userService.GetAllUsers(pageNumber, pageSize);
         return Ok(users);
     }
 
-    [HttpDelete("{id}")]
+
+    [HttpDelete("myAcc/{id}")]
     public async Task<ActionResult<UserResponseModel>> DeleteById(int id)
     {
         try
@@ -236,7 +237,6 @@ public class UserController : ControllerBase
         }
 
         [HttpGet("isfollowing/{followingUserId}")]
-        [Authorize]
         public async Task<IActionResult> IsFollowing(int followingUserId)
         {
             string token = HttpContext.Request.Headers["Authorization"];
@@ -248,8 +248,17 @@ public class UserController : ControllerBase
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking follow status.");
-                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while checking follow status.");
+                return StatusCode(StatusCodes.Status500InternalServerError,
+                    "An error occurred while checking follow status.");
             }
+        }
+
+        [HttpGet("allFollows")]
+        public async Task<IActionResult> GetFollowCounts()
+        {
+            string token = HttpContext.Request.Headers["Authorization"];
+            var followerCounts = await _followService.GetFollowerCounts(token);
+            return Ok(followerCounts);
         }
     
 }
