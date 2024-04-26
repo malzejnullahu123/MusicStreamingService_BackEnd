@@ -9,19 +9,17 @@ namespace MusicStreamingService_BackEnd.Services.PlayHistoryService
     public class PlayHistoryService : IPlayHistoryService
     {
         private readonly AppDbContext _dbContext;
+        private readonly ExtractFromToken _extractor;
 
-        public PlayHistoryService(AppDbContext dbContext)
+        public PlayHistoryService(AppDbContext dbContext, ExtractFromToken extractor)
         {
             _dbContext = dbContext;
+            _extractor = extractor;
         }
 
         public async Task<List<PlayHistoryResponseModel>> GetPlayHistoryByUserId(string token)
         {
-            var principal = TokenService.VerifyToken(token);
-    
-            var idClaim = principal.Claims
-                .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            int.TryParse(idClaim.Value, out var id);
+            var id = _extractor.Id(token);
             
             var playHistoryEntries = await _dbContext.PlayHistories
                 .Include(ph => ph.Song)
@@ -47,13 +45,9 @@ namespace MusicStreamingService_BackEnd.Services.PlayHistoryService
             }).ToList();
         }
 
-        public async Task AddPlayHistory(int userId, int songId, DateTime datePlayed)
+        public async Task AddPlayHistory(string token, int songId, DateTime datePlayed)
         {
-            var user = await _dbContext.Users.FindAsync(userId);
-            if (user == null)
-            {
-                throw new ArgumentException($"User with ID {userId} not found.");
-            }
+            var userId = _extractor.Id(token);
 
             var song = await _dbContext.Songs.FindAsync(songId);
             if (song == null)

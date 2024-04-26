@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using MusicStreamingService_BackEnd.Database;
 using MusicStreamingService_BackEnd.Entities;
+using MusicStreamingService_BackEnd.Models;
 
 
 namespace MusicStreamingService_BackEnd.Services.FollowService;
@@ -75,6 +76,23 @@ public class FollowService : IFollowService
         
         return follow != null;
     }
+
+    public async Task<FollowCountModel> GetFollowerCounts(string token)
+    {
+        var userId = _extractor.Id(token);
+        var followerCount = await _dbContext.Follows
+            .Where(u => u.FollowingUserID == userId)
+            .CountAsync();
     
+        var followingCount = await _dbContext.Follows
+            .Where(u => u.UserID == userId)
+            .CountAsync();
+
+        return new FollowCountModel
+        {
+            FollowerCount = followerCount,
+            FollowingCount = followingCount
+        };
+    }
     
 }
