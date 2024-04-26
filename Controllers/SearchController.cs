@@ -56,4 +56,32 @@ public class SearchController : ControllerBase
             return NotFound(e.Message);
         }
     }
+    
+    [HttpGet("users")]
+    public async Task<ActionResult<List<UserResponseModel>>> SearchUsers([FromQuery] string query, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            var users = await _searchService.SearchUsers(query, pageNumber, pageSize);
+            return Ok(users);
+        }
+        catch (ArgumentException e)
+        {
+            return NotFound(e.Message);
+        }
+    }
+
+    [HttpGet("playlists")]
+    public async Task<ActionResult<List<PlaylistResponseModel>>> SearchPublicPlaylist([FromQuery] string query, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+    {
+        try
+        {
+            var playlists = await _searchService.SearchPublicPlaylist(query, pageNumber, pageSize);
+            return Ok(playlists);
+        }
+        catch (ArgumentException e)
+        {
+            return NotFound(e.Message);
+        }
+    }
 }

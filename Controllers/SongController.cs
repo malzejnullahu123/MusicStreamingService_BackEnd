@@ -131,6 +131,13 @@ namespace MusicStreamingService_BackEnd.Controllers
             }
         }
 
+        [HttpGet("recommended/a")]
+        public async Task<ActionResult<List<SongResponseModel>>> GetRecommendedSongs()
+        {
+            string token = HttpContext.Request.Headers["Authorization"];
+            var songs = await _songService.GetRecommendedSongs(token);
+            return Ok(songs);
+        }
 
     }
 }

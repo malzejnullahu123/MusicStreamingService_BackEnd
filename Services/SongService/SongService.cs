@@ -8,10 +8,12 @@ namespace MusicStreamingService_BackEnd.Services.SongService;
 public class SongService : ISongService
 {
     private readonly AppDbContext _dbContext;
+    private readonly ExtractFromToken _extractor;
 
-    public SongService(AppDbContext appDbContext)
+    public SongService(AppDbContext appDbContext, ExtractFromToken extractor)
     {
         _dbContext = appDbContext;
+        _extractor = extractor;
     }
 
     public async Task<SongResponseModel> FindById(int id)
@@ -236,7 +238,54 @@ public class SongService : ISongService
             EmbedIMGLink = song.EmbedIMGLink
         }).ToList();
     }
+    
+    public async Task<List<SongResponseModel>> GetRecommendedSongs(string token)
+    {
+        var userId = _extractor.Id(token);
+        // Get the genre ids of songs the user listened to
+        var userGenreIds = await _dbContext.PlayHistories
+            .Where(ph => ph.UserId == userId)
+            .Select(ph => ph.Song.GenreId)
+            .Distinct()
+            .ToListAsync();
 
+        // Get the artist ids of songs the user listened to
+        var userArtistIds = await _dbContext.PlayHistories
+            .Where(ph => ph.UserId == userId)
+            .Select(ph => ph.Song.ArtistId)
+            .Distinct()
+            .ToListAsync();
+
+        // Get the ids of trendy songs
+        var trendySongIds = await _dbContext.PlayHistories
+            .GroupBy(ph => ph.SongId)
+            .OrderByDescending(g => g.Count())
+            .Select(g => g.Key)
+            .Take(10) // Assuming you want the top 10 trendy songs
+            .ToListAsync();
+
+        var recommendedSongs = await _dbContext.Songs
+            .Include(song => song.Artist)
+            .Include(song => song.Genre)
+            .Where(song =>
+                (userGenreIds.Contains(song.GenreId) || userArtistIds.Contains(song.ArtistId) || trendySongIds.Contains(song.SongId))
+                && song.SongId != userId) // Exclude songs the user has listened to
+            .ToListAsync();
+
+        return recommendedSongs.Select(song => new SongResponseModel
+        {
+            SongId = song.SongId,
+            Title = song.Title,
+            ArtistId = song.ArtistId,
+            ArtistName = song.Artist.Name,
+            GenreId = song.GenreId,
+            GenreName = song.Genre.Name,
+            EmbedLink = song.EmbedLink,
+            EmbedIMGLink = song.EmbedIMGLink
+        }).ToList();
+    }
+
+   
 
 
 }

@@ -58,6 +58,7 @@ public class AuthService : IAuthService
         {
             UserId = user!.UserId,
             Email = user.Email,
+            EmbedImgLink = user.EmbedImgLink,
             FullName = user.FullName,
             Username = user.Username
         };

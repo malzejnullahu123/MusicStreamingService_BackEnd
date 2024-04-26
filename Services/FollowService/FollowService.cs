@@ -77,15 +77,14 @@ public class FollowService : IFollowService
         return follow != null;
     }
 
-    public async Task<FollowCountModel> GetFollowerCounts(string token)
+    public async Task<FollowCountModel> GetFollowerCounts(int id)
     {
-        var userId = _extractor.Id(token);
         var followerCount = await _dbContext.Follows
-            .Where(u => u.FollowingUserID == userId)
+            .Where(u => u.FollowingUserID == id)
             .CountAsync();
     
         var followingCount = await _dbContext.Follows
-            .Where(u => u.UserID == userId)
+            .Where(u => u.UserID == id)
             .CountAsync();
 
         return new FollowCountModel

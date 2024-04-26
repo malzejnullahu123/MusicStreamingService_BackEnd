@@ -23,7 +23,21 @@ public class UserService : IUserService
             if (existingUser != null)
             {
                 throw new InvalidOperationException("User with this email already exists");
-            }        
+            }
+
+            List<string> links = new List<string>
+            {
+                "https://cdn-icons-png.flaticon.com/512/6596/6596121.png",
+                "https://cdn-icons-png.flaticon.com/512/3607/3607444.png",
+                "https://cdn2.iconfinder.com/data/icons/audio-16/96/user_avatar_profile_login_button_account_member-512.png",
+                "https://cdn-icons-png.flaticon.com/512/3541/3541871.png",
+                "https://cdn4.iconfinder.com/data/icons/social-messaging-ui-color-and-shapes-3/177800/129-512.png",
+                "https://www.pikpng.com/pngl/m/80-805068_my-profile-icon-blank-profile-picture-circle-clipart.png"
+            };
+
+            Random random = new Random();
+            int randomIndex = random.Next(0, links.Count);
+            string randomLink = links[randomIndex];
             
             var user = new User
             {
@@ -31,6 +45,7 @@ public class UserService : IUserService
                 Username = request.Username,
                 Email = request.Email,
                 Password = HashPassword(request.Password), // Hash the password before saving
+                EmbedImgLink = randomLink,
                 Role = "user"
             };
             
@@ -42,6 +57,7 @@ public class UserService : IUserService
                 UserId = user.UserId,
                 FullName = user.FullName,
                 Username = user.Username,
+                EmbedImgLink = user.EmbedImgLink,
                 Email = user.Email
             };
             return response;
@@ -60,6 +76,7 @@ public class UserService : IUserService
                 UserId = user.UserId,
                 FullName = user.FullName,
                 Username = user.Username,
+                EmbedImgLink = user.EmbedImgLink,
                 Email = user.Email
             }).ToList();
         }
@@ -85,6 +102,7 @@ public class UserService : IUserService
                 FullName = user.FullName,
                 Username = user.Username,
                 Email = user.Email,
+                EmbedImgLink = user.EmbedImgLink,
                 Password = request.Password
             };
 
@@ -98,15 +116,17 @@ public class UserService : IUserService
             {
                 throw new ArgumentException($"User with ID {id} not found.");
             }
-            
+    
             return new UserResponseModel
             {
                 UserId = user.UserId,
                 FullName = user.FullName,
                 Username = user.Username,
+                EmbedImgLink = user.EmbedImgLink,
                 Email = user.Email
             };
         }
+
 
         public async Task<UserResponseModel> DeleteById(int id)
         {

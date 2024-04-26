@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicStreamingService_BackEnd.Entities;
 using MusicStreamingService_BackEnd.Models;
@@ -171,15 +170,8 @@ public class UserController : ControllerBase
         try
         {
             var user = await _userService.FindById(id);
-        
-            var userDto = new UserResponseModel
-            {
-                UserId = user.UserId,
-                FullName = user.FullName,
-                Username = user.Username,
-                Email = user.Email
-            };
-            return Ok(userDto);
+            
+            return Ok(user);
 
         }
         catch (ArgumentException ex)
@@ -253,11 +245,10 @@ public class UserController : ControllerBase
             }
         }
 
-        [HttpGet("allFollows")]
-        public async Task<IActionResult> GetFollowCounts()
+        [HttpGet("allFollows/{id}")]
+        public async Task<IActionResult> GetFollowCounts(int id)
         {
-            string token = HttpContext.Request.Headers["Authorization"];
-            var followerCounts = await _followService.GetFollowerCounts(token);
+            var followerCounts = await _followService.GetFollowerCounts(id);
             return Ok(followerCounts);
         }
     

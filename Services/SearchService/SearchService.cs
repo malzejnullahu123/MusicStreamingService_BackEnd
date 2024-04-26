@@ -93,4 +93,59 @@ public class SearchService : ISearchService
             }).ToList();
         }
 
+        public async Task<List<PlaylistResponseModel>> SearchPublicPlaylist(string query, int pageNumber, int pageSize)
+        {
+            var playlists = await _dbContext.Playlists
+                .Where(p => p.IsVisible && (EF.Functions.Like(p.Name.ToUpper(), $"%{query.ToUpper()}%")
+                                            || EF.Functions.Like(p.User.FullName.ToUpper(), $"%{query.ToUpper()}%")))
+                .Include(p => p.User) // Include user to access FullName
+                .OrderBy(p => EF.Functions.Like(p.Name.ToUpper(), $"%{query.ToUpper()}%") ? 0 : 1) // Order by similarity in playlist name
+                .ThenBy(p => EF.Functions.Like(p.User.FullName.ToUpper(), $"%{query.ToUpper()}%") ? 0 : 1) // Then order by similarity in user's full name
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (playlists.Count == 0)
+            {
+                throw new ArgumentException($"No public playlists found for query: {query}");
+            }
+
+            return playlists.Select(playlist => new PlaylistResponseModel
+            {
+                PlaylistId = playlist.PlaylistId,
+                Name = playlist.Name,
+                UserId = playlist.UserId,
+                Image = playlist.Image,
+                IsVisible = playlist.IsVisible
+            }).ToList();
+        }
+
+
+        public async Task<List<UserResponseModel>> SearchUsers(string query, int pageNumber, int pageSize)
+        {
+            var users = await _dbContext.Users
+                .Where(u => EF.Functions.Like(u.FullName.ToUpper(), $"%{query.ToUpper()}%")
+                            || EF.Functions.Like(u.Username.ToUpper(), $"%{query.ToUpper()}%")
+                            || EF.Functions.Like(u.Email.ToUpper(), $"%{query.ToUpper()}%"))
+                .OrderBy(u => EF.Functions.Like(u.FullName.ToUpper(), $"%{query.ToUpper()}%") ? 0 : 1) // Order by similarity in full name
+                .ThenBy(u => EF.Functions.Like(u.Username.ToUpper(), $"%{query.ToUpper()}%") ? 0 : 1) // Then order by similarity in username
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (users.Count == 0)
+            {
+                throw new ArgumentException($"No users found for query: {query}");
+            }
+
+            return users.Select(user => new UserResponseModel
+            {
+                UserId = user.UserId,
+                FullName = user.FullName,
+                Username = user.Username,
+                EmbedImgLink = user.EmbedImgLink,
+                Email = user.Email
+            }).ToList();
+        }
+
     }

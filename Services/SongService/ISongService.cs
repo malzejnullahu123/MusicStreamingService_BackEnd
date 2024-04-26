@@ -12,5 +12,6 @@ public interface ISongService
     Task<List<SongResponseModel>> GetSongsByGenre(int genreId);
     Task<List<SongResponseModel>> GetSongsByArtist(int artistId);
     Task<List<SongResponseModel>> GetSongsByAlbum(int albumId);
+    Task<List<SongResponseModel>> GetRecommendedSongs(string token);
 
 }
