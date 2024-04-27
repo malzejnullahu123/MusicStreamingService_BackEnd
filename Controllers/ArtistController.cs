@@ -19,8 +19,12 @@ public class ArtistController : ControllerBase
     }
     
     [HttpPost("register")]
-    public async Task<ActionResult<ArtistResponseModel>> Create([FromQuery] string token, [FromBody] ArtistRequestModel request)
+    public async Task<ActionResult<ArtistResponseModel>> Create([FromBody] ArtistRequestModel request)
     {
+        string token = HttpContext.Request.Headers["Authorization"];
+        // string token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxNyIsImVtYWlsIjoiYWFhIiwicm9sZSI6InVzZXIiLCJuYmYiOjE3MTQyMDg0OTcsImV4cCI6MTcxNDM4MTI5NywiaWF0IjoxNzE0MjA4NDk3fQ.dZRoVp_bWyBmLiqJ8nd6QKoH2gd4Pf-PcrFUDYROhaQ";
+
+
         if (request == null || string.IsNullOrWhiteSpace(request.Name))
         {
             return BadRequest("Invalid request. Please provide Artist Name");
@@ -33,7 +37,7 @@ public class ArtistController : ControllerBase
         }
         catch (ArgumentException ex)
         {
-            return Conflict(ex.Message);
+            return Conflict("aaa test");
         }
         catch (Exception ex)
         {

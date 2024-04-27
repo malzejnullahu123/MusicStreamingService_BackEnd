@@ -45,6 +45,7 @@ public class ArtistService : IArtistService
         }
         
         user.EmbedImgLink = request.EmbedImgLink;
+        user.Role = "artist";
 
         _dbContext.Artists.Add(artist);
         await _dbContext.SaveChangesAsync();

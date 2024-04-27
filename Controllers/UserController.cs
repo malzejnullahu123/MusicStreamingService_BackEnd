@@ -75,8 +75,8 @@ public class UserController : ControllerBase
     {
         try
         {
-            string token = await _authService.Authenticate(request);
-            return Ok(new { Token = token });
+            var result = await _authService.Authenticate(request);
+            return Ok(new { Token = result.Token, Role = result.Role });
         }
         catch (ArgumentException e)
         {

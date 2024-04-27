@@ -5,7 +5,7 @@ namespace MusicStreamingService_BackEnd.Services.AuthService;
 
 public interface IAuthService
 {
-    Task<string> Authenticate(LoginRequestModel request);
+    Task<(string Token, string Role)> Authenticate(LoginRequestModel request);
     
     Task<UserResponseModel> Me(string token);
 

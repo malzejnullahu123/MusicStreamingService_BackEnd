@@ -1,8 +1,6 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using MusicStreamingService_BackEnd.Database;
 using MusicStreamingService_BackEnd.Models;
 
@@ -17,7 +15,7 @@ public class AuthService : IAuthService
         _dbContext = dbContext;
     }
 
-    public async Task<string> Authenticate(LoginRequestModel request)
+    public async Task<(string Token, string Role)> Authenticate(LoginRequestModel request)
     {
         var user = _dbContext.Users
             .Where(user => user.Email == request.Email)
@@ -30,10 +28,12 @@ public class AuthService : IAuthService
         string hashedPassword = HashPassword(request.Password);
         if (user.Password == hashedPassword)
         {
-            return TokenService.GenerateToken(user.UserId, user.Email, user.Role);
+            string token = TokenService.GenerateToken(user.UserId, user.Email, user.Role);
+            return (Token: token, Role: user.Role);
         }
         throw new ArgumentException("Invalid password");
     }
+
 
     public async Task<UserResponseModel> Me(string token)
     {
@@ -59,6 +59,7 @@ public class AuthService : IAuthService
             UserId = user!.UserId,
             Email = user.Email,
             EmbedImgLink = user.EmbedImgLink,
+            Role = user.Role,
             FullName = user.FullName,
             Username = user.Username
         };
