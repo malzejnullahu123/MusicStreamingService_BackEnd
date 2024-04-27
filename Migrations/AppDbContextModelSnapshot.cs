@@ -240,6 +240,7 @@ namespace MusicStreamingService_BackEnd.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("EmbedImgLink")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("FullName")

@@ -17,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddDbContext<AppDbContext>(options => options
-    .UseNpgsql("Host=localhost;Port=5432;Database=music_db;Username=postgres;Password=postgres"));
+    .UseNpgsql("Host=34.32.247.126;Port=5432;Database=music_db;Username=postgres1;Password=OHFl&&VHagi:6,%z"));
 builder.Services.AddControllers();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IArtistService, ArtistService>();
@@ -37,7 +37,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         builder =>
         {
-            builder.WithOrigins("http://localhost:3000")
+            builder.WithOrigins("https://music-streaming-alpha.vercel.app")
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
@@ -51,11 +51,11 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+// if (app.Environment.IsDevelopment())
+// {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
+// }
 
 app.UseHttpsRedirection();
 
