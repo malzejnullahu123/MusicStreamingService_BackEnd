@@ -191,10 +191,16 @@ public class SongService : ISongService
         }).ToList();
     }
     
-    public async Task<List<SongResponseModel>> GetSongsByArtist(int artistId)
+    public async Task<List<SongResponseModel>> GetSongsByArtist(int artistId, int pageNumber, int pageSize)
     {
+        // Calculate the number of records to skip based on the page number and page size
+        int skip = (pageNumber - 1) * pageSize;
+
         var songs = await _dbContext.Songs
             .Where(song => song.ArtistId == artistId)
+            .OrderByDescending(song => song.SongId) // It's a good practice to order the results for consistent pagination
+            .Skip(skip)
+            .Take(pageSize)
             .ToListAsync();
 
         if (songs.Count == 0)
@@ -212,6 +218,7 @@ public class SongService : ISongService
             EmbedIMGLink = song.EmbedIMGLink
         }).ToList();
     }
+
     
     public async Task<List<SongResponseModel>> GetSongsByAlbum(int albumId)
     {

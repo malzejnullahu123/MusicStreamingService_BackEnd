@@ -10,7 +10,7 @@ public interface ISongService
     Task<SongResponseModel> CreateSong(SongRequestModel request);
     Task<SongResponseModel> DeleteById(int id);
     Task<List<SongResponseModel>> GetSongsByGenre(int genreId);
-    Task<List<SongResponseModel>> GetSongsByArtist(int artistId);
+    Task<List<SongResponseModel>> GetSongsByArtist(int artistId, int pageNumber, int pageSize);
     Task<List<SongResponseModel>> GetSongsByAlbum(int albumId);
     Task<List<SongResponseModel>> GetRecommendedSongs(string token);
 

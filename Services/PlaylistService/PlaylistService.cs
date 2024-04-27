@@ -17,9 +17,10 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
         public async Task<PlaylistResponseModel> CreatePlaylist(PlaylistRequestModel request)
         {
             var user = await _dbContext.Users.FindAsync(request.UserId);
-            if (user == null)
+
+            if (user.UserId == null)
             {
-                throw new InvalidOperationException("User with the specified ID does not exist in the database.");
+                throw new ArgumentException("useri nuk egziston");
             }
 
             var playlist = new Playlist
@@ -196,8 +197,37 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
                 throw new InvalidOperationException("Song not found in the playlist.");
             }
         }
-        
-        
-        
+
+        public async Task<List<PlaylistResponseModel>> GetPlaylistsOfUser(int userId, int pageNumber, int pageSize)
+        {
+            // Calculate the number of items to skip
+            int skip = (pageNumber - 1) * pageSize;
+
+            // Query the database for playlists created by the user, applying pagination
+            var playlists = await _dbContext.Playlists
+                .Where(p => p.UserId == userId)
+                .OrderByDescending(p => p.PlaylistId) // Assuming there's a CreatedAt property to order by
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (!playlists.Any())
+            {
+                throw new ArgumentException("There are no playlists for the specified user.");
+            }
+
+            // Map the playlists to PlaylistResponseModel objects
+            var playlistResponseModels = playlists.Select(playlist => new PlaylistResponseModel
+            {
+                PlaylistId = playlist.PlaylistId,
+                Name = playlist.Name,
+                UserId = playlist.UserId,
+                Image = playlist.Image,
+                IsVisible = playlist.IsVisible
+            }).ToList();
+
+            return playlistResponseModels;
+        }
+
     }
 }

@@ -103,12 +103,12 @@ namespace MusicStreamingService_BackEnd.Controllers
             return Ok(songs);
         }
         
-        [HttpGet("byArtist/{artistId}")]
-        public async Task<ActionResult<List<SongResponseModel>>> GetSongsByArtist(int artistId)
+        [HttpGet("byArtist/{artistId}/{pageNumber}/{pageSize}")]
+        public async Task<ActionResult<List<SongResponseModel>>> GetSongsByArtist(int artistId, int pageNumber, int pageSize)
         {
             try
             {
-                var songs = await _songService.GetSongsByArtist(artistId);
+                var songs = await _songService.GetSongsByArtist(artistId, pageNumber, pageSize);
                 return Ok(songs);
             }
             catch (ArgumentException e)

@@ -53,7 +53,7 @@ namespace MusicStreamingService_BackEnd.Controllers
             try
             {
                 var playlist = await _playlistService.CreatePlaylist(request);
-                return CreatedAtAction(nameof(GetPlaylistById), new { id = playlist.PlaylistId }, playlist);
+                return Ok(playlist);
             }
             catch (InvalidOperationException ex)
             {
@@ -133,6 +133,25 @@ namespace MusicStreamingService_BackEnd.Controllers
             {
                 await _playlistService.RemoveSongFromPlaylist(playlistId, songId);
                 return Ok("Song removed successfully");
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        
+        
+        [HttpGet("ofUser/{userId}/{pageNumber}/{pageSize}")]
+        public async Task<ActionResult<List<PlaylistResponseModel>>> GetPlaylistsOfUser(int userId, int pageNumber, int pageSize)
+        {
+            try
+            {
+                var playlists =  await _playlistService.GetPlaylistsOfUser(userId, pageNumber, pageSize);
+                return Ok(playlists);
             }
             catch (ArgumentException ex)
             {
