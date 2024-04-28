@@ -8,10 +8,12 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
     public class PlaylistService : IPlaylistService
     {
         private readonly AppDbContext _dbContext;
+        private readonly ExtractFromToken _extractor;
 
-        public PlaylistService(AppDbContext dbContext)
+        public PlaylistService(AppDbContext dbContext, ExtractFromToken extractor)
         {
             _dbContext = dbContext;
+            _extractor = extractor;
         }
 
         public async Task<PlaylistResponseModel> CreatePlaylist(PlaylistRequestModel request)
@@ -62,28 +64,57 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
             };
         }
 
-        public async Task<List<PlaylistResponseModel>> GetAllVisible(int pageNumber, int pageSize)
+        public async Task<List<PlaylistResponseModel>> GetAllVisible(string token, int pageNumber, int pageSize)
         {
-            var playlists = await _dbContext.Playlists
+            var visiblePlaylists = await _dbContext.Playlists
+                .Where(p => p.IsVisible) // Filter by IsVisible
                 .OrderByDescending(p => p.PlaylistId)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
-
-            var playlistResponseModels = new List<PlaylistResponseModel>();
-            foreach (var playlist in playlists)
+            
+            if (token == null)
             {
-                playlistResponseModels.Add(new PlaylistResponseModel
+                var playlistResponseModels = new List<PlaylistResponseModel>();
+                foreach (var playlist in visiblePlaylists)
                 {
-                    PlaylistId = playlist.PlaylistId,
-                    Name = playlist.Name,
-                    UserId = playlist.UserId,
-                    Image = playlist.Image,
-                    IsVisible = playlist.IsVisible
-                });
+                    playlistResponseModels.Add(new PlaylistResponseModel
+                    {
+                        PlaylistId = playlist.PlaylistId,
+                        Name = playlist.Name,
+                        UserId = playlist.UserId,
+                        Image = playlist.Image,
+                        IsVisible = playlist.IsVisible
+                    });
+                }
+
+                return playlistResponseModels;
             }
 
-            return playlistResponseModels;
+            var userId = _extractor.Id(token);
+            var followingUserIds = await _dbContext.Follows
+                .Where(f => f.UserID == userId)
+                .Select(f => f.FollowId)
+                .ToListAsync();
+            var followingPlaylists = await _dbContext.Playlists
+                .Where(p => followingUserIds.Contains(p.UserId))
+                .ToListAsync();
+            
+            var allPlaylists = visiblePlaylists.Concat(followingPlaylists)
+                .OrderByDescending(p => p.PlaylistId)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
+            var playlistPersonalResponseModels = allPlaylists.Select(p => new PlaylistResponseModel
+            {
+                PlaylistId = p.PlaylistId,
+                Name = p.Name,
+                UserId = p.UserId,
+                Image = p.Image,
+                IsVisible = p.IsVisible
+            }).ToList();
+
+            return playlistPersonalResponseModels;
         }
 
 

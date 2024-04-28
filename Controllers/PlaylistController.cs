@@ -15,12 +15,13 @@ namespace MusicStreamingService_BackEnd.Controllers
             _playlistService = playlistService;
         }
 
-        [HttpGet("all/{pageNumber}/{pageSize}")]
+        [HttpGet("allVisible/{pageNumber}/{pageSize}")]
         public async Task<ActionResult<List<PlaylistResponseModel>>> GetAllVisiblePlaylists(int pageNumber = 1, int pageSize = 10)
         {
             try
             {
-                var playlists = await _playlistService.GetAllVisible(pageNumber, pageSize);
+                string token = HttpContext.Request.Headers["Authorization"];
+                var playlists = await _playlistService.GetAllVisible(token, pageNumber, pageSize);
                 return Ok(playlists);
             }
             catch (Exception ex)
