@@ -6,7 +6,7 @@ public interface IPlaylistService
 {
     Task<PlaylistResponseModel> FindById(int id);
     Task<List<PlaylistResponseModel>> GetAllVisible(string token, int pageNumber, int pageSize);
-    Task<PlaylistResponseModel> CreatePlaylist(PlaylistRequestModel request);
+    Task<PlaylistResponseModel> CreatePlaylist(string token, PlaylistRequestModel request);
     Task<PlaylistResponseModel> DeleteById(int id);
     
     Task<List<SongResponseModel>> GetSongsInPlaylist(int playlistId);

@@ -51,9 +51,11 @@ namespace MusicStreamingService_BackEnd.Controllers
         [HttpPost]
         public async Task<ActionResult<PlaylistResponseModel>> CreatePlaylist([FromBody] PlaylistRequestModel request)
         {
+            string token = HttpContext.Request.Headers["Authorization"];
+
             try
             {
-                var playlist = await _playlistService.CreatePlaylist(request);
+                var playlist = await _playlistService.CreatePlaylist(token, request);
                 return Ok(playlist);
             }
             catch (InvalidOperationException ex)

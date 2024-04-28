@@ -16,9 +16,10 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
             _extractor = extractor;
         }
 
-        public async Task<PlaylistResponseModel> CreatePlaylist(PlaylistRequestModel request)
+        public async Task<PlaylistResponseModel> CreatePlaylist(string token, PlaylistRequestModel request)
         {
-            var user = await _dbContext.Users.FindAsync(request.UserId);
+            var userId = _extractor.Id(token);
+            var user = await _dbContext.Users.FindAsync(userId);
 
             if (user.UserId == null)
             {
@@ -28,7 +29,7 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
             var playlist = new Playlist
             {
                 Name = request.Name,
-                UserId = request.UserId,
+                UserId = userId,
                 Image = request.Image,
                 IsVisible = request.IsVisible
             };

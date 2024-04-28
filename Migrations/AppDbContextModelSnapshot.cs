@@ -48,7 +48,7 @@ namespace MusicStreamingService_BackEnd.Migrations
 
                     b.HasIndex("ArtistId");
 
-                    b.ToTable("Albums");
+                    b.ToTable("Albums", (string)null);
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Artist", b =>
@@ -74,7 +74,7 @@ namespace MusicStreamingService_BackEnd.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Artists");
+                    b.ToTable("Artists", (string)null);
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Follow", b =>
@@ -97,7 +97,7 @@ namespace MusicStreamingService_BackEnd.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Follows");
+                    b.ToTable("Follows", (string)null);
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Genre", b =>
@@ -114,7 +114,7 @@ namespace MusicStreamingService_BackEnd.Migrations
 
                     b.HasKey("GenreId");
 
-                    b.ToTable("Genres");
+                    b.ToTable("Genres", (string)null);
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.PlayHistory", b =>
@@ -140,7 +140,7 @@ namespace MusicStreamingService_BackEnd.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("PlayHistories");
+                    b.ToTable("PlayHistories", (string)null);
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Playlist", b =>
@@ -169,7 +169,7 @@ namespace MusicStreamingService_BackEnd.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Playlists");
+                    b.ToTable("Playlists", (string)null);
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.PlaylistSong", b =>
@@ -184,7 +184,7 @@ namespace MusicStreamingService_BackEnd.Migrations
 
                     b.HasIndex("SongId");
 
-                    b.ToTable("PlaylistSongs");
+                    b.ToTable("PlaylistSongs", (string)null);
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Song", b =>
@@ -224,7 +224,7 @@ namespace MusicStreamingService_BackEnd.Migrations
 
                     b.HasIndex("GenreId");
 
-                    b.ToTable("Songs");
+                    b.ToTable("Songs", (string)null);
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.User", b =>
@@ -240,7 +240,6 @@ namespace MusicStreamingService_BackEnd.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("EmbedImgLink")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("FullName")
@@ -261,7 +260,7 @@ namespace MusicStreamingService_BackEnd.Migrations
 
                     b.HasKey("UserId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("MusicStreamingService_BackEnd.Entities.Album", b =>
