@@ -37,7 +37,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         builder =>
         {
-            builder.WithOrigins("https://www.beatflow.live", "http://www.beatflow.live")
+            builder.WithOrigins("https://www.beatflow.live", "http://www.beatflow.live", "https://music-streaming-alpha.vercel.app")
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
