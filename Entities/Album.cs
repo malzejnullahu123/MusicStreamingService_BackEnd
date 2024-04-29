@@ -12,9 +12,8 @@ public class Album
     public DateTime ReleaseDate { get; set; }
     [ForeignKey("ArtistId")]
     public int ArtistId { get; set; } // Foreign Key referencing Artist
-    public string Image { get; set; } // URL to album image
+    public string Image { get; set; }
 
-    // Navigation Properties for Relationships (One-to-Many and Many-to-One)
     public Artist Artist { get; set; } // One album belongs to one artist (Many-to-One)
     public ICollection<Song> Songs { get; set; } // One album can have many songs (One-to-Many)
 }

@@ -17,9 +17,9 @@ namespace MusicStreamingService_BackEnd.Entities
         public int FollowingUserID { get; set; } // Foreign Key referencing User (user being followed)
 
         [JsonIgnore]
-        public User User { get; set; } // Navigation property to User
+        public User User { get; set; }
 
         [JsonIgnore]
-        public User FollowingUser { get; set; } // Navigation property to User (user being followed)
+        public User FollowingUser { get; set; } 
     }
 }

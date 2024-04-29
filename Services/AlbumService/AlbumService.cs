@@ -36,7 +36,7 @@ namespace MusicStreamingService_BackEnd.Services.AlbumService
                 Title = album.Title,
                 ReleaseDate = album.ReleaseDate,
                 ArtistId = album.ArtistId,
-                ArtistName = artist.Name, // Include the artist's name
+                ArtistName = artist.Name, 
                 Image = album.Image
             };
         }
@@ -101,7 +101,7 @@ namespace MusicStreamingService_BackEnd.Services.AlbumService
                 Title = album.Title,
                 ReleaseDate = album.ReleaseDate,
                 ArtistId = album.ArtistId,
-                ArtistName = artist.Name, // Include the artist's name
+                ArtistName = artist.Name,
                 Image = album.Image
             };
         }

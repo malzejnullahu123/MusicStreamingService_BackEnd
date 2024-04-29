@@ -193,12 +193,11 @@ public class SongService : ISongService
     
     public async Task<List<SongResponseModel>> GetSongsByArtist(int artistId, int pageNumber, int pageSize)
     {
-        // Calculate the number of records to skip based on the page number and page size
         int skip = (pageNumber - 1) * pageSize;
 
         var songs = await _dbContext.Songs
             .Where(song => song.ArtistId == artistId)
-            .OrderByDescending(song => song.SongId) // It's a good practice to order the results for consistent pagination
+            .OrderByDescending(song => song.SongId) 
             .Skip(skip)
             .Take(pageSize)
             .ToListAsync();
@@ -268,7 +267,7 @@ public class SongService : ISongService
             .GroupBy(ph => ph.SongId)
             .OrderByDescending(g => g.Count())
             .Select(g => g.Key)
-            .Take(10) // Assuming you want the top 10 trendy songs
+            .Take(10) 
             .ToListAsync();
 
         var recommendedSongs = await _dbContext.Songs

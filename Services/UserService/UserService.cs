@@ -44,7 +44,7 @@ public class UserService : IUserService
                 FullName = request.FullName,
                 Username = request.Username,
                 Email = request.Email,
-                Password = HashPassword(request.Password), // Hash the password before saving
+                Password = HashPassword(request.Password),
                 EmbedImgLink = randomLink,
                 Role = "user"
             };

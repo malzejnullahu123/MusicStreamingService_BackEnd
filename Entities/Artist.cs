@@ -13,7 +13,6 @@ public class Artist
     public string EmbedImgLink { get; set; }
 
     
-    // Navigation Property for Relationship (One-to-Many)
     public ICollection<Album> Albums { get; set; } // One artist can have many albums
     public User User { get; set; }
 }
