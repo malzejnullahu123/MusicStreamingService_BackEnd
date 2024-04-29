@@ -37,7 +37,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowSpecificOrigin",
         builder =>
         {
-            builder.WithOrigins("https://www.beatflow.live", "http://localhost:3000")
+            builder.WithOrigins("https://www.beatflow.live", "http://www.beatflow.live")
                 .AllowAnyHeader()
                 .AllowAnyMethod();
         });
