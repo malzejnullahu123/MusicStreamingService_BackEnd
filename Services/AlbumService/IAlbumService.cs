@@ -7,7 +7,7 @@ public interface IAlbumService
 {
     Task<AlbumResponseModel> FindById(int id);
     Task<List<AlbumResponseModel>> GetAll(int pageNumber, int pageSize);
-    Task <AlbumResponseModel> CreateAlbum(AlbumRequestModel album);
+    Task <AlbumResponseModel> CreateAlbum(string token, AlbumRequestModel album);
     Task<AlbumResponseModel> DeleteById(int id);
     Task<AlbumResponseModel> AddSongToAlbum(int albumId, int songId);
 

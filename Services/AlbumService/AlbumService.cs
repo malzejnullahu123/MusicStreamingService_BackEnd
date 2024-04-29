@@ -8,10 +8,12 @@ namespace MusicStreamingService_BackEnd.Services.AlbumService
     public class AlbumService : IAlbumService
     {
         private readonly AppDbContext _dbContext;
+        private readonly ExtractFromToken _extractor;
 
-        public AlbumService(AppDbContext appDbContext)
+        public AlbumService(AppDbContext appDbContext, ExtractFromToken extractor)
         {
             _dbContext = appDbContext;
+            _extractor = extractor;
         }
 
         public async Task<AlbumResponseModel> FindById(int id)
@@ -73,9 +75,10 @@ namespace MusicStreamingService_BackEnd.Services.AlbumService
         }
 
 
-        public async Task<AlbumResponseModel> CreateAlbum(AlbumRequestModel request)
+        public async Task<AlbumResponseModel> CreateAlbum(string token, AlbumRequestModel request)
         {
-            var artist = await _dbContext.Artists.FirstOrDefaultAsync(a => a.ArtistId == request.ArtistId);
+            var artistId = _extractor.Id(token);
+            var artist = await _dbContext.Artists.FirstOrDefaultAsync(a => a.ArtistId == artistId);
             if (artist == null)
             {
                 throw new InvalidOperationException("Artist with the specified ID does not exist in the database.");
@@ -84,7 +87,7 @@ namespace MusicStreamingService_BackEnd.Services.AlbumService
             var album = new Album
             {
                 Title = request.Title,
-                ArtistId = request.ArtistId,
+                ArtistId = artistId,
                 ReleaseDate = DateTime.UtcNow,
                 Image = request.Image
             };

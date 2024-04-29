@@ -8,7 +8,6 @@ namespace MusicStreamingService_BackEnd.Models;
 public class AlbumRequestModel
 {
     public string Title { get; set; }
-    public int ArtistId { get; set; }
     public string Image { get; set; }
 
     // [JsonIgnore] public Artist Artist { get; set; }

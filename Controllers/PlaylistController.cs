@@ -165,5 +165,26 @@ namespace MusicStreamingService_BackEnd.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+  
+        [HttpGet("mine/{pageNumber}/{pageSize}")]
+
+        public async Task<ActionResult<List<PlaylistResponseModel>>> GetMyPlayilists(int pageNumber, int pageSize)
+        {
+            string token = HttpContext.Request.Headers["Authorization"];
+            try
+            {
+                var playlists =  await _playlistService.GetMyPlaylists(token, pageNumber, pageSize);
+                return Ok(playlists);
+            }
+            catch (ArgumentException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+        
     }
 }

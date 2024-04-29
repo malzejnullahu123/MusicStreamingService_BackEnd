@@ -67,17 +67,15 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
 
         public async Task<List<PlaylistResponseModel>> GetAllVisible(string token, int pageNumber, int pageSize)
         {
-            var visiblePlaylists = await _dbContext.Playlists
-                .Where(p => p.IsVisible) // Filter by IsVisible
+            var allPlaylists = await _dbContext.Playlists
                 .OrderByDescending(p => p.PlaylistId)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
                 .ToListAsync();
-            
+
             if (token == null)
             {
+                // Return only visible playlists if no token
                 var playlistResponseModels = new List<PlaylistResponseModel>();
-                foreach (var playlist in visiblePlaylists)
+                foreach (var playlist in allPlaylists.Where(p => p.IsVisible)) // Filter visible playlists
                 {
                     playlistResponseModels.Add(new PlaylistResponseModel
                     {
@@ -95,18 +93,18 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
             var userId = _extractor.Id(token);
             var followingUserIds = await _dbContext.Follows
                 .Where(f => f.UserID == userId)
-                .Select(f => f.FollowId)
+                .Select(f => f.FollowingUserID)
                 .ToListAsync();
-            var followingPlaylists = await _dbContext.Playlists
-                .Where(p => followingUserIds.Contains(p.UserId))
-                .ToListAsync();
-            
-            var allPlaylists = visiblePlaylists.Concat(followingPlaylists)
+
+            // Combine all playlists, including private ones from followed users
+            var combinedPlaylists = allPlaylists
+                .Where(p => p.IsVisible || followingUserIds.Contains(p.UserId) || p.UserId == userId) // Filter visible or followed user's playlists
                 .OrderByDescending(p => p.PlaylistId)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();
-            var playlistPersonalResponseModels = allPlaylists.Select(p => new PlaylistResponseModel
+
+            var playlistPersonalResponseModels = combinedPlaylists.Select(p => new PlaylistResponseModel
             {
                 PlaylistId = p.PlaylistId,
                 Name = p.Name,
@@ -163,6 +161,7 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
                 Title = song.Title,
                 ArtistId = song.ArtistId,
                 GenreId = song.GenreId,
+                EmbedIMGLink = song.EmbedIMGLink,
                 EmbedLink = song.EmbedLink
             }).ToList();
         }
@@ -232,13 +231,11 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
 
         public async Task<List<PlaylistResponseModel>> GetPlaylistsOfUser(int userId, int pageNumber, int pageSize)
         {
-            // Calculate the number of items to skip
             int skip = (pageNumber - 1) * pageSize;
 
-            // Query the database for playlists created by the user, applying pagination
             var playlists = await _dbContext.Playlists
                 .Where(p => p.UserId == userId)
-                .OrderByDescending(p => p.PlaylistId) // Assuming there's a CreatedAt property to order by
+                .OrderByDescending(p => p.PlaylistId)
                 .Skip(skip)
                 .Take(pageSize)
                 .ToListAsync();
@@ -248,7 +245,36 @@ namespace MusicStreamingService_BackEnd.Services.PlaylistService
                 throw new ArgumentException("There are no playlists for the specified user.");
             }
 
-            // Map the playlists to PlaylistResponseModel objects
+            var playlistResponseModels = playlists.Select(playlist => new PlaylistResponseModel
+            {
+                PlaylistId = playlist.PlaylistId,
+                Name = playlist.Name,
+                UserId = playlist.UserId,
+                Image = playlist.Image,
+                IsVisible = playlist.IsVisible
+            }).ToList();
+
+            return playlistResponseModels;
+        }
+        
+        
+        public async Task<List<PlaylistResponseModel>> GetMyPlaylists(string token, int pageNumber, int pageSize)
+        {
+            var userId = _extractor.Id(token);
+            int skip = (pageNumber - 1) * pageSize;
+
+            var playlists = await _dbContext.Playlists
+                .Where(p => p.UserId == userId)
+                .OrderByDescending(p => p.PlaylistId)
+                .Skip(skip)
+                .Take(pageSize)
+                .ToListAsync();
+
+            if (!playlists.Any())
+            {
+                throw new ArgumentException("There are no playlists for the specified user.");
+            }
+
             var playlistResponseModels = playlists.Select(playlist => new PlaylistResponseModel
             {
                 PlaylistId = playlist.PlaylistId,

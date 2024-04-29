@@ -13,4 +13,6 @@ public interface IPlaylistService
     Task AddSongToPlaylist(int playlistId, int songId);
     Task RemoveSongFromPlaylist(int playlistId, int songId);
     Task<List<PlaylistResponseModel>> GetPlaylistsOfUser(int userId, int pageNumber, int pageSize);
+    Task<List<PlaylistResponseModel>> GetMyPlaylists(string token, int pageNumber, int pageSize);
+
 }

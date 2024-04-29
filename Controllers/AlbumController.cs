@@ -22,12 +22,14 @@ public class AlbumController : ControllerBase
     [Route("register")]
     public async Task<ActionResult<Album>> CreateAlbum([FromBody] AlbumRequestModel album)
     {
+        string token = HttpContext.Request.Headers["Authorization"];
+
         if (album == null)
         {
             return BadRequest();
         }
 
-        var createdAlbum = await _albumService.CreateAlbum(album);
+        var createdAlbum = await _albumService.CreateAlbum(token, album);
 
         return Ok(createdAlbum);
     }
